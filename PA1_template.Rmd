@@ -1,25 +1,66 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Reproducible Research Project 1 Coursera"
+author: "Aadil Nakhoda"
+date: "May 9, 2020"
+output: html_document
 ---
+#Course Project 1 for Reproducible Research
+## A
+### Loading the data 
+```{r, echo=TRUE}
+knitr::opts_chunk$set(warning=FALSE)
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+#Setting up the folder, downloading data and unzipping the file 
+#Setting the path to the directory storing the data 
+setwd("E:/Coursera/Reproducible Research/Week 2 Peer Review/")
+#Downloading the file
+if(!file.exists("./data")){dir.create("./data")
+        fileURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+        download.file(fileURL,destfile="./data/Dataset.zip")
+        #(II) Unzip the downloaded file
+        unzip(zipfile="./data/Dataset.zip",exdir="./data")}
+if (!exists("activity")) {
+        activity <- read.csv("./data/activity.csv") 
+}
+```
+```{r, echo=TRUE}
+str(activity)
+head(activity)
+```
 
+### Transforming the date into a suitable format
+```{r, echo=TRUE}
 
-## Loading and preprocessing the data
+activity$date <- as.POSIXct(activity$date, "%Y-%m-%d")
+```
+### Calculate the total number of steps taken per day
+```{r stepsperday, echo=TRUE}
+stepsperday <- aggregate(steps ~ date, activity, sum, na.rm=TRUE)
 
+```
+### Make a histogram for the total number of steps taken per day
+```{r histogram, echo=TRUE}
+hist(stepsperday$steps, xlab="Total Number of Steps per Day", main="Histogram for Total Number of Steps per Day")
+```
 
+### Calculate the mean and median of the total number of steps taken per day
+```{r statistics, echo=TRUE}
+options(digits = 2)
+options(scipen = 999)
+meansteps <- mean(stepsperday$steps)
+mediansteps <- median(stepsperday$steps)
+```
+### Answer: The mean steps per day is `r meansteps` and the median steps per day is `r mediansteps`.
 
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+### Make a time series plot (type="l") of the 5 minute interval and the average number of steps taken across all days
+```{r timeseriesplot, echo=TRUE}
+stepsperinterval <- aggregate(steps ~ interval, data=activity, mean, na.rm=TRUE)
+plot(stepsperinterval, data=activity, type="l", ylab="Average number of steps", xlab="Interval", main="5-minute Interval and Average Number of Steps")
+```
+### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r maximum, echo=TRUE}
+maximumsteps <- stepsperinterval[which.max(stepsperinterval$steps),]$interval
+```
+### Answer: The maximum number of steps is `r maximumsteps`
